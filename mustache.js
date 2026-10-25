@@ -29,7 +29,26 @@ function escapeRegExp (string) {
  * including its prototype, has a given property
  */
 function hasProperty (obj, propName) {
-  return obj != null && typeof obj === 'object' && (propName in obj);
+  return (
+    obj != null
+    && typeof obj === 'object'
+    && (propName in obj)
+    && !isObjectPrototypeMember(obj, propName)
+  );
+}
+
+/**
+ * Detects a name that `obj` only has because every object inherits it from
+ * `Object.prototype` (such as `toString` or `constructor`). A template name that
+ * matches one of these is treated as missing, as the Mustache spec requires.
+ * Own properties and overrides further down the prototype chain still count.
+ */
+function isObjectPrototypeMember (obj, propName) {
+  return (
+    (propName in Object.prototype)
+    && !Object.prototype.hasOwnProperty.call(obj, propName)
+    && obj[propName] === Object.prototype[propName]
+  );
 }
 
 /**
